@@ -2,7 +2,10 @@ module github.com/amidgo/amidtoken
 
 go 1.19
 
-require github.com/ethereum/go-ethereum v1.10.26
+require (
+	github.com/ethereum/go-ethereum v1.10.26
+	github.com/gin-contrib/cors v1.4.0
+)
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect

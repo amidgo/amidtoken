@@ -3,12 +3,19 @@ package main
 import (
 	"github.com/amidgo/amidtoken/routing"
 	"github.com/amidgo/amidtoken/variables"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	variables.Init()
 	c := gin.Default()
+	c.Use(cors.Default())
+
+	c.POST("/approvePrivate", routing.ApprovePrivate)
+
+	c.POST("/approvePublic", routing.ApprovePublic)
+
 	c.POST("/balance", routing.Balance)
 
 	c.POST("/buyPrivate", routing.BuyPrivate)

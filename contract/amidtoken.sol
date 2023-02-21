@@ -64,7 +64,8 @@ contract AmidToken {
 
 
     function getTime() public view returns(uint){
-        return (block.timestamp - startTime)/60 + timeDiff;
+        // return (block.timestamp - startTime)/60 + timeDiff;
+        return timeDiff;
     }
 
     function getPhase() public view returns(string memory){
@@ -165,15 +166,16 @@ contract AmidToken {
     }
 
     modifier checkPhase() {
-        currentTime = (block.timestamp - startTime)/60 + timeDiff;
-        if (currentTime >= 5 && currentTime < 10) {
+        // currentTime = (block.timestamp - startTime)/60 + timeDiff;
+        currentTime = timeDiff;
+        if (currentTime >= 5 && currentTime < 15) {
             balanceOf[privateProvider].privateTokens = balanceOf[owner].privateTokens;
             balanceOf[owner].privateTokens = 0;
             currentTokenOwner = privateProvider;
             currentPhase = Phase.privatePhase;
             phaseTokenLimit = 100000;
         }
-        if (currentTime >= 10) {
+        if (currentTime >= 15) {
             currentTokenOwner = publicProvider;
             balanceOf[publicProvider].publicTokens = balanceOf[owner].publicTokens;
             balanceOf[owner].privateTokens += balanceOf[privateProvider].privateTokens;
