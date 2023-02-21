@@ -46,5 +46,5 @@ func Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(LoginResponse{role}))
+	ctx.JSON(http.StatusOK, NewRDataSuccess(&LoginResponse{role}))
 }

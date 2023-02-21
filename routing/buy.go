@@ -14,29 +14,14 @@ type BuyBody struct {
 	Value  *big.Int `json:"value"`
 }
 
-func BuyPrivate(ctx *gin.Context) {
+func Buy(ctx *gin.Context) {
 	var body BuyBody
 	if err := ctx.BindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
 	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.BuyPrivate(tOpts, body.Amount)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
-}
-
-func BuyPublic(ctx *gin.Context) {
-	var body BuyBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.BuyPublic(tOpts, body.Amount)
+	_, err := variables.Contract.Buy(tOpts, body.Amount)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return

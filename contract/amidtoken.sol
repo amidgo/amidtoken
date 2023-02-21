@@ -32,8 +32,8 @@ contract AmidToken {
     uint public decimals = 12;
     uint public cost;
 
-    mapping (address => Balance) public balanceOf;
-    mapping (address => mapping (address => Balance)) public allowance;
+    mapping (address => uint) public balanceOf;
+    mapping (address => mapping (address => uint)) public allowance;
     
     Phase currentPhase = Phase.seedPhase; 
     uint public phaseTokenLimit;
@@ -47,7 +47,12 @@ contract AmidToken {
 
     mapping (address => bool) public whiteList;
 
-    constructor(address owner_,address privateProvider_,address publicProvider_) {
+    mapping (address => uint) public seedTokenTx;
+    mapping (address => uint) public privateTokenTx;
+    mapping (address => uint) public publicTokenTx;
+    
+
+    constructor(address owner_, address privateProvider_,address publicProvider_,address investor1,address investor2,address friend) {
         startTime = block.timestamp;
         currentTime = block.timestamp;
         owner = owner_;
@@ -57,9 +62,21 @@ contract AmidToken {
         setUser(owner_,"owner");
         setUser(privateProvider_,"private");
         setUser(publicProvider_,"public");
-        balanceOf[owner].privateTokens = totalSupply * 40 / 100;
-        balanceOf[owner].publicTokens = totalSupply * 60 / 100;
-        cost = 1 ether * 75 / 100000;
+        setUser(investor1,"user");
+        setUser(investor2,"user");
+        setUser(friend,"user");
+
+        balanceOf[owner] += 10000000;
+        seedTokenTx[owner] += 1000000;
+        privateTokenTx[owner] += 3000000;
+        publicTokenTx[owner] += 6000000;
+
+        transferFrom_(owner,investor1,300000);
+
+        transferFrom_(owner,investor2,400000);
+
+        transferFrom_(owner,friend,200000);
+
     }
 
 
@@ -69,11 +86,12 @@ contract AmidToken {
     }
 
     function getPhase() public view returns(string memory){
-        uint time = (block.timestamp - startTime)/60 + timeDiff;
-        if (time >= 5 && time < 10) {
+        // uint time = (block.timestamp - startTime)/60 + timeDiff;
+        uint time = timeDiff;
+        if (time >= 5 && time < 15) {
             return "private";
         }
-        if (time >= 10) {
+        if (time >= 15) {
             return "public";
         }
         return "seed";
@@ -82,43 +100,26 @@ contract AmidToken {
         cost = newValue;
     }
 
-    function transferPrivate(address to,uint amount) public checkPhase enoughtTokensPrivate(msg.sender,to,amount) checkToken(amount) {
-        balanceOf[msg.sender].privateTokens -= amount;
-        balanceOf[to].privateTokens += amount;
+    function transferFrom_(address from,address to,uint amount) private enoughtTokens(from,to,amount) setPhaseHistory(from,to,amount) {
+        balanceOf[from] -= amount;
+        balanceOf[to] += amount;
+    }
+
+    function transfer(address to,uint amount) public checkPhase enoughtTokens(msg.sender,to,amount) checkToken(amount) {
+        transferFrom_(msg.sender,to,amount);
     }   
 
-    function transferPublic(address to,uint amount) public checkPhase enoughtTokensPublic(msg.sender,to,amount) checkToken(amount) {
-        balanceOf[msg.sender].publicTokens -= amount;
-        balanceOf[to].publicTokens += amount;
-    }   
-
-    function transferFromPrivate(address from,address to,uint amount) public checkPhase enoughtTokensPrivate(from,to,amount)  {
-        allowance[from][to].privateTokens -= amount;
-        balanceOf[msg.sender].privateTokens -= amount;
-        balanceOf[to].privateTokens += amount;
+    function transferFrom(address from,address to,uint amount) public checkPhase enoughtTokens(from,to,amount) {
+        allowance[from][to] -= amount;
+        transferFrom_(from,to,amount);
     }
 
-    function transferFromPublic(address from,address to,uint amount) public checkPhase enoughtTokensPublic(from,to,amount)  {
-        allowance[from][to].publicTokens -= amount;
-        balanceOf[msg.sender].publicTokens -= amount;
-        balanceOf[to].publicTokens += amount;
+    function approve(address from,address to,uint amount) public {
+        allowance[from][to] = amount;
     }
 
-    function approvePrivate(address from,address to,uint amount) public {
-        allowance[from][to].privateTokens = amount;
-    }
-
-    function approvePublic(address from,address to,uint amount) public {
-        allowance[from][to].publicTokens = amount;
-    }
-
-    modifier enoughtTokensPrivate(address from, address to, uint amount) {
-        require(balanceOf[from].privateTokens > amount,"check balance");
-        _;
-    }
-
-     modifier enoughtTokensPublic(address from, address to, uint amount) {
-        require(balanceOf[from].publicTokens > amount,"check balance");
+    modifier enoughtTokens(address from, address to, uint amount) {
+        require(balanceOf[from] > amount,"check balance");
         _;
     }
 
@@ -126,18 +127,10 @@ contract AmidToken {
         timeDiff++;
     }
 
-    function buyPrivate(uint amount) public payable checkPhase checkWhiteList{
+    function buy(uint amount) public payable checkPhase checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) setPhaseHistory(currentTokenOwner,msg.sender,amount){
         uint sum = amount * cost;
         payable(currentTokenOwner).transfer(sum);
-        balanceOf[msg.sender].privateTokens += amount;
-        if (sum < msg.value){
-            payable(msg.sender).transfer(sum - msg.value);
-        }
-    }
-    function buyPublic(uint amount) public payable checkPhase checkWhiteList{
-         uint sum = amount * cost;
-        payable(currentTokenOwner).transfer(sum);
-        balanceOf[msg.sender].publicTokens += amount;
+        balanceOf[msg.sender] += amount;
         if (sum < msg.value){
             payable(msg.sender).transfer(sum - msg.value);
         }
@@ -169,18 +162,20 @@ contract AmidToken {
         // currentTime = (block.timestamp - startTime)/60 + timeDiff;
         currentTime = timeDiff;
         if (currentTime >= 5 && currentTime < 15) {
-            balanceOf[privateProvider].privateTokens = balanceOf[owner].privateTokens;
-            balanceOf[owner].privateTokens = 0;
+            uint privatePhaseAmount = 3000000;
             currentTokenOwner = privateProvider;
             currentPhase = Phase.privatePhase;
+            transferFrom_(owner,privateProvider,privatePhaseAmount);
             phaseTokenLimit = 100000;
         }
+
         if (currentTime >= 15) {
             currentTokenOwner = publicProvider;
-            balanceOf[publicProvider].publicTokens = balanceOf[owner].publicTokens;
-            balanceOf[owner].privateTokens += balanceOf[privateProvider].privateTokens;
-            balanceOf[privateProvider].privateTokens = 0;
+            uint publicTokenAmount = 6000000;
+            transferFrom_(privateProvider,owner,balanceOf[privateProvider]);
+            currentTokenOwner = publicProvider;
             currentPhase = Phase.publicPhase;
+            transferFrom_(owner,publicProvider,publicTokenAmount);
             cost = 1 ether / 1000;
             phaseTokenLimit = 5000;
         }
@@ -194,5 +189,20 @@ contract AmidToken {
         _;
     }
 
+    modifier setPhaseHistory(address from, address to,uint value) {
+        if (currentPhase == Phase.publicPhase) {
+            publicTokenTx[from] -= value;
+            publicTokenTx[to] += value;
+        }
+        if (currentPhase == Phase.privatePhase) {
+            privateTokenTx[from] -= value;
+            privateTokenTx[to] += value;
+        }
+        if (currentPhase == Phase.seedPhase) {
+            seedTokenTx[from] -= value;
+            seedTokenTx[to] += value;
+        }
+        _;
+    }
     
 }

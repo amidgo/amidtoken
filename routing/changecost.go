@@ -19,7 +19,7 @@ func ChangeCost(ctx *gin.Context) {
 		return
 	}
 	tOpts := variables.DefaultTransactOpts()
-	_, err := variables.Contract.BuyPrivate(tOpts, body.NewValue)
+	_, err := variables.Contract.ChangeCost(tOpts, body.NewValue)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return

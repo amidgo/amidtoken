@@ -1,7 +1,6 @@
 package routing
 
 import (
-	"fmt"
 	"math/big"
 	"net/http"
 
@@ -40,7 +39,6 @@ func Requests(ctx *gin.Context) {
 		if err != nil {
 			continue
 		}
-		fmt.Println(addr)
 		accs = append(accs, addr)
 	}
 

@@ -15,29 +15,14 @@ type TransferBody struct {
 	Amount *big.Int        `json:"amount"`
 }
 
-func TransferPublic(ctx *gin.Context) {
+func Transfer(ctx *gin.Context) {
 	var body TransferBody
 	if err := ctx.BindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
 	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.TransferPublic(tOpts, *body.To, body.Amount)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
-}
-
-func TransferPrivate(ctx *gin.Context) {
-	var body TransferBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.TransferPrivate(tOpts, *body.To, body.Amount)
+	_, err := variables.Contract.Transfer(tOpts, *body.To, body.Amount)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return

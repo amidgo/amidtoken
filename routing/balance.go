@@ -14,8 +14,8 @@ type Sender struct {
 }
 
 type BalanceResponse struct {
-	PublicBalance  *big.Int `json:"publicBalance"`
-	PrivateBalance *big.Int `json:"privateBalance"`
+	TokenBalance *big.Int `json:"tokenBalance"`
+	EthBalance   *big.Int `json:"ethBalance"`
 }
 
 func Balance(ctx *gin.Context) {
@@ -24,10 +24,20 @@ func Balance(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	st, err := variables.Contract.BalanceOf(variables.DefaultCallOpts(), *sender.Address)
+	tokenBalance, err := variables.Contract.BalanceOf(variables.DefaultCallOpts(), *sender.Address)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(BalanceResponse{st.PublicTokens, st.PrivateTokens}))
+	blockNumber, err := variables.Client.BlockNumber(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		return
+	}
+	ethBalance, err := variables.Client.BalanceAt(ctx, *sender.Address, big.NewInt(int64(blockNumber)))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, NewRDataSuccess(&BalanceResponse{TokenBalance: tokenBalance, EthBalance: ethBalance}))
 }

@@ -5,22 +5,31 @@ import (
 	"net/http"
 
 	"github.com/amidgo/amidtoken/variables"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 )
 
+type User struct {
+	Sender
+	Role               string   `json:"role"`
+	SeedTokenAmount    *big.Int `json:"seedTokenAmount"`
+	PrivateTokenAmount *big.Int `json:"privateTokenAmount"`
+	PublicTokenAmount  *big.Int `json:"publicTokenAmount"`
+}
+
 func AllUsers(ctx *gin.Context) {
-	accs := make([]common.Address, 0)
-	var err error
-	var addr common.Address
+	users := make([]*User, 0)
 	var index int64
-	for err == nil {
-		addr, err = variables.Contract.UserAddresses(variables.DefaultCallOpts(), big.NewInt(index))
+	for {
+		addr, err := variables.Contract.UserAddresses(variables.DefaultCallOpts(), big.NewInt(index))
 		index++
 		if err != nil {
-			continue
+			break
 		}
-		accs = append(accs, addr)
+		role, _ := variables.Contract.Users(variables.DefaultCallOpts(), addr)
+		sToken, _ := variables.Contract.SeedTokenTx(variables.DefaultCallOpts(), addr)
+		prToken, _ := variables.Contract.PrivateTokenTx(variables.DefaultCallOpts(), addr)
+		pToken, _ := variables.Contract.PublicTokenTx(variables.DefaultCallOpts(), addr)
+		users = append(users, &User{Sender: Sender{&addr}, Role: role, SeedTokenAmount: sToken, PrivateTokenAmount: prToken, PublicTokenAmount: pToken})
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(accs))
+	ctx.JSON(http.StatusOK, NewRDataSuccess(users))
 }
