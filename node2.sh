@@ -1,0 +1,2 @@
+# bin/bash
+geth --datadir eth-net/node2 --networkid 11111 --http --http.port 2222 --port 30307 --allow-insecure-unlock --bootnodes enode://f7c7ab3fb0641c7ae5dcc825b6e1ac7488ce8e15254debf2202051bea9c99319b01386880451a99c9de7ed9b3fbe44dbc7b15da3b096b73c41f96bb1078af711@127.0.0.1:0?discport=30305 --unlock 0xf51878d18c731033B51e5367de79ae9443815246 --password miner.txt --mine --miner.etherbase 0xf51878d18c731033B51e5367de79ae9443815246 --authrpc.port 8550
