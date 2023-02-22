@@ -1,8 +1,10 @@
 package routing
 
 import (
+	"fmt"
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -25,20 +27,20 @@ func SendRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
+	time.Sleep(time.Second)
 	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
 }
 
 func Requests(ctx *gin.Context) {
 	accs := make([]common.Address, 0)
-	var err error
-	var addr common.Address
-	var index int64
-	for err == nil {
-		addr, err = variables.Contract.RequestAddresses(variables.DefaultCallOpts(), big.NewInt(index))
+	var index int64 = 0
+	for {
+		addr, err := variables.Contract.RequestAddresses(variables.DefaultCallOpts(), big.NewInt(index))
 		index++
 		if err != nil {
-			continue
+			break
 		}
+		fmt.Println(addr)
 		accs = append(accs, addr)
 	}
 
@@ -48,7 +50,8 @@ func Requests(ctx *gin.Context) {
 		if err != nil {
 			continue
 		}
-		requests = append(requests, &SendRequestBody{Name: name, Sender: Sender{&v}})
+		addr := v
+		requests = append(requests, &SendRequestBody{Name: name, Sender: Sender{&addr}})
 	}
 	ctx.JSON(http.StatusOK, NewRDataSuccess(requests))
 }
@@ -69,5 +72,6 @@ func HandleRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
+	time.Sleep(time.Second)
 	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
 }

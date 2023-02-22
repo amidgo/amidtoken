@@ -12,7 +12,7 @@ func main() {
 	c := gin.Default()
 	c.Use(cors.Default())
 
-	c.POST("/approvePublic", routing.Approve)
+	c.POST("/approve", routing.Approve)
 
 	c.POST("/balance", routing.Balance)
 
@@ -37,6 +37,8 @@ func main() {
 	c.POST("/timeTravel", routing.TimeTravel)
 
 	c.POST("/transfer", routing.Transfer)
+
+	c.POST("/transferFrom", routing.TransferFrom)
 
 	c.GET("/users", routing.AllUsers)
 

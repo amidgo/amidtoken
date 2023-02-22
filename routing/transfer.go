@@ -3,6 +3,7 @@ package routing
 import (
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -13,6 +14,11 @@ type TransferBody struct {
 	Sender
 	To     *common.Address `json:"to"`
 	Amount *big.Int        `json:"amount"`
+}
+
+type TransferFromBody struct {
+	TransferBody
+	From *common.Address `json:"from"`
 }
 
 func Transfer(ctx *gin.Context) {
@@ -27,5 +33,22 @@ func Transfer(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
+	time.Sleep(time.Second)
+	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+}
+
+func TransferFrom(ctx *gin.Context) {
+	var body TransferFromBody
+	if err := ctx.BindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		return
+	}
+	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
+	_, err := variables.Contract.TransferFrom(tOpts, *body.From, *body.To, body.Amount)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		return
+	}
+	time.Sleep(time.Second)
 	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
 }

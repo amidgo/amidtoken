@@ -100,9 +100,10 @@ contract AmidToken {
         cost = newValue;
     }
 
-    function transferFrom_(address from,address to,uint amount) private enoughtTokens(from,to,amount) setPhaseHistory(from,to,amount) {
+    function transferFrom_(address from,address to,uint amount) private enoughtTokens(from,to,amount)  {
         balanceOf[from] -= amount;
         balanceOf[to] += amount;
+        setPhaseHistory(to,amount);
     }
 
     function transfer(address to,uint amount) public checkPhase enoughtTokens(msg.sender,to,amount) checkToken(amount) {
@@ -127,16 +128,18 @@ contract AmidToken {
         timeDiff++;
     }
 
-    function buy(uint amount) public payable checkPhase checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) setPhaseHistory(currentTokenOwner,msg.sender,amount){
+    function buy(uint amount) public payable checkPhase checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) checkPhaseLimit(amount) {
         uint sum = amount * cost;
         payable(currentTokenOwner).transfer(sum);
         balanceOf[msg.sender] += amount;
         if (sum < msg.value){
             payable(msg.sender).transfer(sum - msg.value);
         }
+        setPhaseHistory(msg.sender,amount);
     }
 
     function sendRequest(string memory _name) checkPhase public {
+        require(currentPhase == Phase.seedPhase,"you can send requests only in seed phase");
         requests[msg.sender] = _name;
         requestAddresses.push(msg.sender);
     }
@@ -166,6 +169,7 @@ contract AmidToken {
             currentTokenOwner = privateProvider;
             currentPhase = Phase.privatePhase;
             transferFrom_(owner,privateProvider,privatePhaseAmount);
+            cost = 1 ether * 75 / 100000;
             phaseTokenLimit = 100000;
         }
 
@@ -183,26 +187,30 @@ contract AmidToken {
     }
 
     modifier checkWhiteList() {
-        if (currentPhase != Phase.publicPhase) {
+        if (currentPhase == Phase.seedPhase){
+            revert("Private sale not started");
+        }
+        if (currentPhase == Phase.privatePhase){
             require(whiteList[msg.sender],"Free sale not started");
         }
         _;
     }
+    modifier checkPhaseLimit(uint value) {
+        require(value<=phaseTokenLimit,"value bigger than value");
+        _;
+    }
 
-    modifier setPhaseHistory(address from, address to,uint value) {
+    function setPhaseHistory(address to,uint value) private {
         if (currentPhase == Phase.publicPhase) {
-            publicTokenTx[from] -= value;
             publicTokenTx[to] += value;
         }
         if (currentPhase == Phase.privatePhase) {
-            privateTokenTx[from] -= value;
             privateTokenTx[to] += value;
         }
         if (currentPhase == Phase.seedPhase) {
-            seedTokenTx[from] -= value;
             seedTokenTx[to] += value;
         }
-        _;
+        
     }
     
 }

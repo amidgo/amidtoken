@@ -15,7 +15,7 @@ type Sender struct {
 
 type BalanceResponse struct {
 	TokenBalance *big.Int `json:"tokenBalance"`
-	EthBalance   *big.Int `json:"ethBalance"`
+	EthBalance   string   `json:"ethBalance"`
 }
 
 func Balance(ctx *gin.Context) {
@@ -39,5 +39,5 @@ func Balance(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(&BalanceResponse{TokenBalance: tokenBalance, EthBalance: ethBalance}))
+	ctx.JSON(http.StatusOK, NewRDataSuccess(&BalanceResponse{TokenBalance: tokenBalance, EthBalance: ethBalance.String()}))
 }
