@@ -1,3 +1,4 @@
 ./contract/AmidToken.bin
 ./contract/AmidToken.abi
 ./contract/AmidToken.go
+./vendor

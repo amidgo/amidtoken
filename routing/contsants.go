@@ -3,6 +3,7 @@ package routing
 import (
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/gin-gonic/gin"
@@ -35,14 +36,22 @@ func GetPhase(ctx *gin.Context) {
 }
 
 type TimeBody struct {
-	Time *big.Int `json:"time"`
+	SystemTime *big.Int `json:"systemTime"`
+	TimeNow    int64    `json:"timeNow"`
+	TimeStart  *big.Int `json:"timeStart"`
 }
 
 func GetTime(ctx *gin.Context) {
-	time, err := variables.Contract.GetTime(variables.DefaultCallOpts())
+	sTime, err := variables.Contract.GetTime(variables.DefaultCallOpts())
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(&TimeBody{Time: time}))
+	timeStart, err := variables.Contract.StartTime(variables.DefaultCallOpts())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		return
+	}
+	timeNow := time.Now().Unix()
+	ctx.JSON(http.StatusOK, NewRDataSuccess(&TimeBody{SystemTime: sTime, TimeStart: timeStart, TimeNow: timeNow}))
 }

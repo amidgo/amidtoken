@@ -17,8 +17,9 @@ type TransferBody struct {
 }
 
 type TransferFromBody struct {
-	TransferBody
-	From *common.Address `json:"from"`
+	From   *common.Address `json:"from"`
+	To     *common.Address `json:"to"`
+	Amount *big.Int        `json:"amount"`
 }
 
 func Transfer(ctx *gin.Context) {
@@ -43,8 +44,7 @@ func TransferFrom(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.TransferFrom(tOpts, *body.From, *body.To, body.Amount)
+	_, err := variables.Contract.TransferFrom(variables.DefaultTransactOpts(), *body.From, *body.To, body.Amount)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return

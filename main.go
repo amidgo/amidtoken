@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/amidgo/amidtoken/routing"
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/gin-contrib/cors"
@@ -42,5 +45,28 @@ func main() {
 
 	c.GET("/users", routing.AllUsers)
 
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			sTime, _ := variables.Contract.GetTime(variables.DefaultCallOpts())
+			timeI := sTime.Int64()
+			if timeI >= 5 && timeI < 15 {
+				if _, err := variables.Contract.SetPrivatePhase(variables.DefaultTransactOpts()); err != nil {
+					fmt.Println("PRIVATE")
+					fmt.Println(err)
+				}
+				time.Sleep(time.Second)
+			}
+			if timeI >= 15 {
+				if _, err := variables.Contract.SetPublicPhase(variables.DefaultTransactOpts()); err != nil {
+					fmt.Println("PUBLIC")
+					fmt.Println(err)
+				}
+				time.Sleep(time.Second)
+			}
+		}
+	}()
+
 	c.Run("0.0.0.0:1212")
+
 }

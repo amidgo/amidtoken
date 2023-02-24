@@ -10,7 +10,7 @@ import (
 )
 
 type ChangeCostBody struct {
-	NewValue *big.Int `json:"newVallue"`
+	NewValue *big.Int `json:"newValue"`
 }
 
 func ChangeCost(ctx *gin.Context) {

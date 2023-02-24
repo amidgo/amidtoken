@@ -2,6 +2,8 @@ package variables
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -20,6 +22,10 @@ func TransactOpts(from common.Address, value *big.Int) (*bind.TransactOpts, erro
 }
 
 func DefaultTransactOpts() *bind.TransactOpts {
-	tx, _ := TransactOpts(Owner, big.NewInt(0))
+	tx, err := TransactOpts(Owner, big.NewInt(0))
+	if err != nil {
+		fmt.Println("transaction")
+		log.Fatal(err, tx)
+	}
 	return tx
 }

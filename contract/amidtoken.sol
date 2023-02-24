@@ -30,7 +30,7 @@ contract AmidToken {
     string public name = "AmidToken";
     string public symbol = "amdt"; 
     uint public decimals = 12;
-    uint public cost;
+    uint public cost = 1 ether * 75 / 100000;
 
     mapping (address => uint) public balanceOf;
     mapping (address => mapping (address => uint)) public allowance;
@@ -106,21 +106,21 @@ contract AmidToken {
         setPhaseHistory(to,amount);
     }
 
-    function transfer(address to,uint amount) public checkPhase enoughtTokens(msg.sender,to,amount) checkToken(amount) {
+    function transfer(address to,uint amount) public enoughtTokens(msg.sender,to,amount) {
         transferFrom_(msg.sender,to,amount);
     }   
 
-    function transferFrom(address from,address to,uint amount) public checkPhase enoughtTokens(from,to,amount) {
+    function transferFrom(address from,address to,uint amount) public enoughtTokens(from,to,amount) {
         allowance[from][to] -= amount;
         transferFrom_(from,to,amount);
     }
 
-    function approve(address from,address to,uint amount) public {
-        allowance[from][to] = amount;
+    function approve(address to,uint amount) public {
+        allowance[msg.sender][to] = amount;
     }
 
     modifier enoughtTokens(address from, address to, uint amount) {
-        require(balanceOf[from] > amount,"check balance");
+        require(balanceOf[from] >= amount,"check balance");
         _;
     }
 
@@ -128,17 +128,16 @@ contract AmidToken {
         timeDiff++;
     }
 
-    function buy(uint amount) public payable checkPhase checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) checkPhaseLimit(amount) {
+    function buy(uint amount) public payable checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) checkPhaseLimit(amount) {
         uint sum = amount * cost;
         payable(currentTokenOwner).transfer(sum);
-        balanceOf[msg.sender] += amount;
         if (sum < msg.value){
             payable(msg.sender).transfer(sum - msg.value);
         }
-        setPhaseHistory(msg.sender,amount);
+        transferFrom_(currentTokenOwner,msg.sender,amount);
     }
 
-    function sendRequest(string memory _name) checkPhase public {
+    function sendRequest(string memory _name) public {
         require(currentPhase == Phase.seedPhase,"you can send requests only in seed phase");
         requests[msg.sender] = _name;
         requestAddresses.push(msg.sender);
@@ -161,19 +160,18 @@ contract AmidToken {
         _;
     }
 
-    modifier checkPhase() {
-        // currentTime = (block.timestamp - startTime)/60 + timeDiff;
-        currentTime = timeDiff;
-        if (currentTime >= 5 && currentTime < 15) {
+    function setPrivatePhase() public {
+        if (currentPhase == Phase.seedPhase) {
             uint privatePhaseAmount = 3000000;
             currentTokenOwner = privateProvider;
             currentPhase = Phase.privatePhase;
             transferFrom_(owner,privateProvider,privatePhaseAmount);
-            cost = 1 ether * 75 / 100000;
             phaseTokenLimit = 100000;
         }
+    }
 
-        if (currentTime >= 15) {
+    function setPublicPhase() public {
+        if (currentPhase == Phase.privatePhase){
             currentTokenOwner = publicProvider;
             uint publicTokenAmount = 6000000;
             transferFrom_(privateProvider,owner,balanceOf[privateProvider]);
@@ -183,7 +181,6 @@ contract AmidToken {
             cost = 1 ether / 1000;
             phaseTokenLimit = 5000;
         }
-        _;
     }
 
     modifier checkWhiteList() {
@@ -196,7 +193,7 @@ contract AmidToken {
         _;
     }
     modifier checkPhaseLimit(uint value) {
-        require(value<=phaseTokenLimit,"value bigger than value");
+        require(value<=phaseTokenLimit,"value bigger than currentPhaseLimit");
         _;
     }
 

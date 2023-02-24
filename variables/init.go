@@ -12,10 +12,14 @@ import (
 const ABI = `[{"inputs":[{"internalType":"address","name":"owner_","type":"address"},{"internalType":"address","name":"privateProvider_","type":"address"},{"internalType":"address","name":"publicProvider_","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"buy","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"cost","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getPhase","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"bool","name":"isAccept","type":"bool"}],"name":"handleRequest","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"phaseTokenLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"privateProvider","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"publicProvider","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"requestAddresses","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"requests","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"_name","type":"string"}],"name":"sendRequest","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"timeDiff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"timeTravel","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whiteList","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}]`
 
 const (
-	Node1         = "http://0.0.0.0:1111"
-	Node2         = "http://0.0.0.0:2222"
-	Node1Keystore = "./eth-net/node1/keystore"
-	Node2Keystore = "./eth-net/node2/keystore"
+	Node1               = "http://0.0.0.0:1111"
+	Node1Docker         = "http://node1:1111"
+	Node2               = "http://0.0.0.0:2222"
+	Node2Docker         = "http://node2:2222"
+	Node1Keystore       = "./eth-net/node1/keystore"
+	Node1KeystoreDocker = "/eth-net/node1/keystore"
+	Node2Keystore       = "./eth-net/node2/keystore"
+	Node2KeystoreDocker = "/eth-net/node2/keystore"
 )
 
 var (
@@ -42,13 +46,12 @@ var (
 )
 
 func Init() {
-
-	c, err := ethclient.Dial(Node2)
+	c, err := ethclient.Dial(Node2Docker)
 	if err != nil {
 		log.Fatal(err)
 	}
 	Client = c
-	k := keystore.NewKeyStore(Node2Keystore, keystore.StandardScryptN, keystore.StandardScryptP)
+	k := keystore.NewKeyStore(Node2KeystoreDocker, keystore.StandardScryptN, keystore.StandardScryptP)
 	Keystore = k
 	Keystore.Unlock(*ImportAccount(Owner), OwnerPWD)
 	_, _, cn, err := contract.DeployContract(DefaultTransactOpts(), Client, Owner, PrivateProvider, PublicProvider, Investor1, Investor2, BestFriend)
@@ -56,4 +59,9 @@ func Init() {
 		log.Fatal(err)
 	}
 	Contract = cn
+	k.Unlock(*ImportAccount(Investor1), Investor1PWD)
+	k.Unlock(*ImportAccount(Investor2), Investor2PWD)
+	k.Unlock(*ImportAccount(BestFriend), BestFriendPWD)
+	k.Unlock(*ImportAccount(PublicProvider), PublicProvPWD)
+	k.Unlock(*ImportAccount(PrivateProvider), PrivateProvPWD)
 }

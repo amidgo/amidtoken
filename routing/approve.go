@@ -24,7 +24,7 @@ func Approve(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
 	}
-	_, err = variables.Contract.Approve(tOpts, tOpts.From, *body.To, body.Value)
+	_, err = variables.Contract.Approve(tOpts, *body.To, body.Value)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
 		return
