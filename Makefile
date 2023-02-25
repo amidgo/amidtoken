@@ -1,10 +1,10 @@
 refresh:
 	sudo rm -rf ./eth-net/node1/*
 	sudo rm -rf ./eth-net/node2/*
-	geth --datadir ./eth-net/node1 init ./eth-net/genesis.json
-	geth --datadir ./eth-net/node2 init ./eth-net/genesis.json
-	cp ./eth-net/keystore/* ./eth-net/node1/keystore
-	cp ./eth-net/keystore/* ./eth-net/node2/keystore
+	docker run --rm -v ${PWD}/eth-net:/sources ethereum/client-go:alltools-v1.11.2 geth --datadir /sources/node1 init /sources/genesis.json
+	docker run --rm -v ${PWD}/eth-net:/sources ethereum/client-go:alltools-v1.11.2 geth --datadir /sources/node2 init /sources/genesis.json
+	sudo cp ./eth-net/keystore/* ./eth-net/node1/keystore
+	sudo cp ./eth-net/keystore/* ./eth-net/node2/keystore
 
 amidtoken:
 	make refresh
