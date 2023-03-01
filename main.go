@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/amidgo/amidtoken/routing"
@@ -11,9 +12,12 @@ import (
 )
 
 func main() {
+	time.Sleep(time.Second)
 	variables.Init()
 	c := gin.Default()
 	c.Use(cors.Default())
+
+	c.LoadHTMLGlob("templates/*")
 
 	c.POST("/approve", routing.Approve)
 
@@ -44,6 +48,17 @@ func main() {
 	c.POST("/transferFrom", routing.TransferFrom)
 
 	c.GET("/users", routing.AllUsers)
+
+	c.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "login.html", gin.H{})
+	})
+
+	c.GET("/error", func(ctx *gin.Context) {
+		err := ctx.Query("err")
+		ctx.HTML(http.StatusOK, "error.html", gin.H{"Error": err})
+	})
+
+	c.GET("/user-page", routing.UserPage)
 
 	go func() {
 		for {

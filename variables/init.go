@@ -46,12 +46,12 @@ var (
 )
 
 func Init() {
-	c, err := ethclient.Dial(Node2Docker)
+	c, err := ethclient.Dial(Node2)
 	if err != nil {
 		log.Fatal(err)
 	}
 	Client = c
-	k := keystore.NewKeyStore(Node2KeystoreDocker, keystore.StandardScryptN, keystore.StandardScryptP)
+	k := keystore.NewKeyStore(Node2Keystore, keystore.StandardScryptN, keystore.StandardScryptP)
 	Keystore = k
 	Keystore.Unlock(*ImportAccount(Owner), OwnerPWD)
 	_, _, cn, err := contract.DeployContract(DefaultTransactOpts(), Client, Owner, PrivateProvider, PublicProvider, Investor1, Investor2, BestFriend)

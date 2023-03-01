@@ -1,9 +1,11 @@
 package routing
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/amidgo/amidtoken/variables"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,21 +32,32 @@ func NewRDataSuccess(data interface{}) *RData {
 	return &RData{data, "nil", true}
 }
 
+func RedirectToError(ctx *gin.Context, err error) {
+	ctx.Redirect(http.StatusMovedPermanently, "/error?err="+err.Error())
+}
+
 func Login(ctx *gin.Context) {
-	var body LoginBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	role, err := variables.Contract.Users(variables.DefaultCallOpts(), *body.Address)
+	addr := common.HexToAddress(ctx.Request.FormValue("login"))
+	password := ctx.Request.FormValue("password")
+	role, err := variables.Contract.Users(variables.DefaultCallOpts(), addr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	acc := variables.ImportAccount(*body.Address)
-	if err := variables.Keystore.Unlock(*acc, body.Password); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+	acc := variables.ImportAccount(addr)
+	if acc == nil {
+		RedirectToError(ctx, errors.New("wrong login"))
 		return
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(&LoginResponse{role}))
+	if err := variables.Keystore.Unlock(*acc, password); err != nil {
+		RedirectToError(ctx, err)
+		return
+	}
+	roleMap := map[string]string{
+		"owner":   "/owner-page",
+		"private": "/private-page",
+		"public":  "/public-page",
+		"user":    "/user-page",
+	}
+	ctx.Redirect(http.StatusMovedPermanently, roleMap[role]+"?address="+addr.String())
 }

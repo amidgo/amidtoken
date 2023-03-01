@@ -1,8 +1,20 @@
-=============== Feb 25, 2023 (UTC) ===============
-15:09:47.628695 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-15:09:47.634324 db@open opening
-15:09:47.635296 version@stat F·[] S·0B[] Sc·[]
-15:09:47.637488 db@janitor F·2 G·0
-15:09:47.637538 db@open done T·3.170627ms
-15:09:47.653360 db@close closing
-15:09:47.653510 db@close done T·144.633µs
+=============== Mar 1, 2023 (+04) ===============
+14:14:38.421171 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:14:38.423566 db@open opening
+14:14:38.424090 version@stat F·[] S·0B[] Sc·[]
+14:14:38.425292 db@janitor F·2 G·0
+14:14:38.425354 db@open done T·1.753787ms
+14:14:38.434138 db@close closing
+14:14:38.434195 db@close done T·55.564µs
+=============== Mar 1, 2023 (+04) ===============
+14:14:38.946610 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:14:38.946816 version@stat F·[] S·0B[] Sc·[]
+14:14:38.946836 db@open opening
+14:14:38.946882 journal@recovery F·1
+14:14:38.949420 journal@recovery recovering @1
+14:14:38.951715 memdb@flush created L0@2 N·29 S·2KiB "\x05v!..i\xae\xf6,v14":"\xfe\x1fc..\xa1\xd51,v9"
+14:14:38.953667 version@stat F·[1] S·2KiB[2KiB] Sc·[0.25]
+14:14:38.956846 db@janitor F·3 G·0
+14:14:38.956867 db@open done T·10.023384ms
+14:14:38.968777 db@close closing
+14:14:38.968852 db@close done T·73.789µs
