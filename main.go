@@ -19,39 +19,10 @@ func main() {
 
 	c.LoadHTMLGlob("templates/*")
 
-	c.POST("/approve", routing.Approve)
-
-	c.POST("/balance", routing.Balance)
-
-	c.POST("/buy", routing.Buy)
-
-	c.POST("/changeCost", routing.ChangeCost)
-
-	c.GET("/time", routing.GetTime)
-
-	c.GET("/phase", routing.GetPhase)
-
-	c.GET("/cost", routing.GetCost)
-
-	c.POST("/login", routing.Login)
-
-	c.POST("/sendRequest", routing.SendRequest)
-
-	c.GET("/requests", routing.Requests)
-
-	c.POST("/handleRequest", routing.HandleRequest)
-
-	c.POST("/timeTravel", routing.TimeTravel)
-
-	c.POST("/transfer", routing.Transfer)
-
-	c.POST("/transferFrom", routing.TransferFrom)
-
-	c.GET("/users", routing.AllUsers)
-
 	c.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "login.html", gin.H{})
 	})
+	c.POST("/login", routing.Login)
 
 	c.GET("/error", func(ctx *gin.Context) {
 		err := ctx.Query("err")
@@ -59,6 +30,15 @@ func main() {
 	})
 
 	c.GET("/user-page", routing.UserPage)
+
+	c.POST("/approve", routing.Approve)
+	c.POST("/buy", routing.Buy)
+	c.POST("/sendRequest", routing.SendRequest)
+	c.POST("/transfer", routing.Transfer)
+	c.POST("/transferFrom", routing.TransferFrom)
+	c.POST("/timeTravel", routing.TimeTravel)
+	c.POST("/changeCost", routing.ChangeCost)
+	c.POST("/handleRequest", routing.HandleRequest)
 
 	go func() {
 		for {

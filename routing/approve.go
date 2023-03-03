@@ -2,8 +2,7 @@ package routing
 
 import (
 	"math/big"
-	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,18 +16,19 @@ type ApproveBody struct {
 }
 
 func Approve(ctx *gin.Context) {
-	var body ApproveBody
-	ctx.BindJSON(&body)
-	tOpts, err := variables.TransactOpts(*body.Address, big.NewInt(0))
+	address := common.HexToAddress(ctx.Query("address"))
+	to := common.HexToAddress(ctx.Request.FormValue("to"))
+	v, err := strconv.ParseInt(ctx.Request.FormValue("value"), 10, 64)
+	value := big.NewInt(v)
+	tOpts, err := variables.TransactOpts(address, big.NewInt(0))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	_, err = variables.Contract.Approve(tOpts, *body.To, body.Value)
+	_, err = variables.Contract.Approve(tOpts, to, value)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }

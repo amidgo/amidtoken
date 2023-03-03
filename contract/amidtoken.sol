@@ -100,18 +100,18 @@ contract AmidToken {
         cost = newValue;
     }
 
-    function transferFrom_(address from,address to,uint amount) private enoughtTokens(from,to,amount)  {
+    function transferFrom_(address from,address to,uint amount) private enoughtTokens(from,amount)  {
         balanceOf[from] -= amount;
         balanceOf[to] += amount;
         setPhaseHistory(to,amount);
     }
 
-    function transfer(address to,uint amount) public enoughtTokens(msg.sender,to,amount) {
+    function transfer(address to,uint amount) public enoughtTokens(msg.sender,amount) {
         transferFrom_(msg.sender,to,amount);
     }   
 
-    function transferFrom(address from,address to,uint amount) public enoughtTokens(from,to,amount) {
-        allowance[from][to] -= amount;
+    function transferFrom(address from,address to,uint amount) public enoughtTokens(from,amount) {
+        allowance[from][msg.sender] -= amount;
         transferFrom_(from,to,amount);
     }
 
@@ -119,7 +119,7 @@ contract AmidToken {
         allowance[msg.sender][to] = amount;
     }
 
-    modifier enoughtTokens(address from, address to, uint amount) {
+    modifier enoughtTokens(address from, uint amount) {
         require(balanceOf[from] >= amount,"check balance");
         _;
     }
@@ -128,7 +128,7 @@ contract AmidToken {
         timeDiff++;
     }
 
-    function buy(uint amount) public payable checkWhiteList enoughtTokens(currentTokenOwner,msg.sender,amount) checkPhaseLimit(amount) {
+    function buy(uint amount) public payable checkWhiteList enoughtTokens(currentTokenOwner,amount) checkPhaseLimit(amount) {
         uint sum = amount * cost;
         payable(currentTokenOwner).transfer(sum);
         if (sum < msg.value){

@@ -3,6 +3,7 @@ package routing
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -36,6 +37,17 @@ func RedirectToError(ctx *gin.Context, err error) {
 	ctx.Redirect(http.StatusMovedPermanently, "/error?err="+err.Error())
 }
 
+func RedirectToRolePage(ctx *gin.Context, addr string, role string) {
+	ctx.Redirect(http.StatusMovedPermanently, "/user-page"+"?address="+addr+"&role="+role)
+}
+
+func RedirectFromRequestToRolePage(ctx *gin.Context) {
+	role := ctx.Query("role")
+	address := ctx.Query("address")
+	time.Sleep(time.Microsecond * 500)
+	RedirectToRolePage(ctx, address, role)
+}
+
 func Login(ctx *gin.Context) {
 	addr := common.HexToAddress(ctx.Request.FormValue("login"))
 	password := ctx.Request.FormValue("password")
@@ -53,11 +65,5 @@ func Login(ctx *gin.Context) {
 		RedirectToError(ctx, err)
 		return
 	}
-	roleMap := map[string]string{
-		"owner":   "/owner-page",
-		"private": "/private-page",
-		"public":  "/public-page",
-		"user":    "/user-page",
-	}
-	ctx.Redirect(http.StatusMovedPermanently, roleMap[role]+"?address="+addr.String())
+	RedirectToRolePage(ctx, addr.String(), role)
 }

@@ -2,12 +2,14 @@ package routing
 
 import (
 	"math/big"
-	"net/http"
 
 	"github.com/amidgo/amidtoken/variables"
-	"github.com/gin-gonic/gin"
+	"github.com/ethereum/go-ethereum/common"
 )
 
+type Sender struct {
+	Address *common.Address
+}
 type User struct {
 	Sender
 	Role               string   `json:"role"`
@@ -16,7 +18,7 @@ type User struct {
 	PublicTokenAmount  *big.Int `json:"publicTokenAmount"`
 }
 
-func AllUsers(ctx *gin.Context) {
+func AllUsers() []*User {
 	users := make([]*User, 0)
 	var index int64
 	for {
@@ -31,5 +33,5 @@ func AllUsers(ctx *gin.Context) {
 		pToken, _ := variables.Contract.PublicTokenTx(variables.DefaultCallOpts(), addr)
 		users = append(users, &User{Sender: Sender{&addr}, Role: role, SeedTokenAmount: sToken, PrivateTokenAmount: prToken, PublicTokenAmount: pToken})
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(users))
+	return users
 }

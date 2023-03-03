@@ -2,35 +2,30 @@ package routing
 
 import (
 	"math/big"
-	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 )
 
-type SendRequestBody struct {
+type RequestBody struct {
 	Sender
 	Name string `json:"name"`
 }
 
 func SendRequest(ctx *gin.Context) {
-	var body SendRequestBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+	address := common.HexToAddress(ctx.Query("address"))
+	name := ctx.Request.FormValue("name")
+	tOpts, _ := variables.TransactOpts(address, big.NewInt(0))
+	if _, err := variables.Contract.SendRequest(tOpts, name); err != nil {
+		RedirectToError(ctx, err)
 		return
 	}
-	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	if _, err := variables.Contract.SendRequest(tOpts, body.Name); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }
 
-func Requests(ctx *gin.Context) {
+func Requests() []*RequestBody {
 	accs := make([]common.Address, 0)
 	var index int64 = 0
 	for {
@@ -42,34 +37,25 @@ func Requests(ctx *gin.Context) {
 		accs = append(accs, addr)
 	}
 
-	requests := make([]*SendRequestBody, 0)
+	requests := make([]*RequestBody, 0)
 	for _, v := range accs {
 		name, err := variables.Contract.Requests(variables.DefaultCallOpts(), v)
 		if err != nil {
 			continue
 		}
 		addr := v
-		requests = append(requests, &SendRequestBody{Name: name, Sender: Sender{&addr}})
+		requests = append(requests, &RequestBody{Name: name, Sender: Sender{&addr}})
 	}
-	ctx.JSON(http.StatusOK, NewRDataSuccess(requests))
-}
-
-type HandleRequestBody struct {
-	Sender
-	IsAccept bool `json:"isAccept"`
+	return requests
 }
 
 func HandleRequest(ctx *gin.Context) {
-	var body HandleRequestBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	_, err := variables.Contract.HandleRequest(variables.DefaultTransactOpts(), *body.Address, body.IsAccept)
+	address := common.HexToAddress(ctx.Request.FormValue("user"))
+	isAccept, _ := strconv.ParseBool(ctx.Request.FormValue("isaccept"))
+	_, err := variables.Contract.HandleRequest(variables.DefaultTransactOpts(), address, isAccept)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }
