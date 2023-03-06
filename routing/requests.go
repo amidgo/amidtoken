@@ -10,8 +10,8 @@ import (
 )
 
 type RequestBody struct {
-	Sender
-	Name string `json:"name"`
+	Sender *common.Address
+	Name   string
 }
 
 func SendRequest(ctx *gin.Context) {
@@ -44,14 +44,14 @@ func Requests() []*RequestBody {
 			continue
 		}
 		addr := v
-		requests = append(requests, &RequestBody{Name: name, Sender: Sender{&addr}})
+		requests = append(requests, &RequestBody{Name: name, Sender: &addr})
 	}
 	return requests
 }
 
 func HandleRequest(ctx *gin.Context) {
-	address := common.HexToAddress(ctx.Request.FormValue("user"))
-	isAccept, _ := strconv.ParseBool(ctx.Request.FormValue("isaccept"))
+	address := common.HexToAddress(ctx.Request.FormValue("sender"))
+	isAccept, _ := strconv.ParseBool(ctx.Request.FormValue("status"))
 	_, err := variables.Contract.HandleRequest(variables.DefaultTransactOpts(), address, isAccept)
 	if err != nil {
 		RedirectToError(ctx, err)

@@ -60,10 +60,10 @@
         Approve
         <form action="/approve?address{{.UserData.Address}}&role={{.UserData.Role}}" method="post">
             <div>
-                <input type="text" name="appto" placeholder="To">
+                <input type="text" name="to" placeholder="To">
             </div>
             <div>
-                <input type="text" name="appvalue" placeholder="Value"/>
+                <input type="text" name="amount" placeholder="Value"/>
             </div>
             <button>Approve</button>
         </form>
@@ -75,7 +75,7 @@
             <input type="text" name="to" placeholder="To"/>
         </div>
         <div>
-            <input type="number" name="value" placeholder="Token Amount"/>
+            <input type="number" name="amount" placeholder="Token Amount"/>
         </div>
         <button>Transfer</button>
     </form>
@@ -91,12 +91,12 @@
                 <input type="text" name="to" placeholder="To">
             </div>
             <div>
-                <input type="number" name="value" placeholder="TokenAmount">
+                <input type="number" name="amount" placeholder="TokenAmount">
             </div>
             <button>Transfer</button>
         </form>
     </div>
-
+    
 
 
 </body>

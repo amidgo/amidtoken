@@ -44,7 +44,7 @@ func RedirectToRolePage(ctx *gin.Context, addr string, role string) {
 func RedirectFromRequestToRolePage(ctx *gin.Context) {
 	role := ctx.Query("role")
 	address := ctx.Query("address")
-	time.Sleep(time.Microsecond * 500)
+	time.Sleep(time.Second)
 	RedirectToRolePage(ctx, address, role)
 }
 

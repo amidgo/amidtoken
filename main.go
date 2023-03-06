@@ -33,7 +33,7 @@ func main() {
 
 	c.POST("/approve", routing.Approve)
 	c.POST("/buy", routing.Buy)
-	c.POST("/sendRequest", routing.SendRequest)
+	c.POST("/send-request", routing.SendRequest)
 	c.POST("/transfer", routing.Transfer)
 	c.POST("/transferFrom", routing.TransferFrom)
 	c.POST("/timeTravel", routing.TimeTravel)

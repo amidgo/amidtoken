@@ -67,9 +67,8 @@ contract AmidToken {
         setUser(friend,"user");
 
         balanceOf[owner] += 10000000;
-        seedTokenTx[owner] += 1000000;
-        privateTokenTx[owner] += 3000000;
-        publicTokenTx[owner] += 6000000;
+        seedTokenTx[owner] += 10000000;
+    
 
         transferFrom_(owner,investor1,300000);
 

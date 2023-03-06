@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <form action="/">
+            <button>Exit</button>
+        </form>
+    </div>
+    <div>
+        <div>Address {{.UserData.Address}}</div>
+    </div>
+    <div>
+        <div>Role {{.UserData.Role}}</div>
+    </div>
+    <div>
+        <div>Eth {{.UserData.Eth}}</div>
+    </div>
+    <div>
+        <div>Token Balance {{.UserData.CMON}}</div>
+    </div>
+    <div>
+        <div>Start Time {{.TimeData.Start}}</div>
+    </div>
+    <div>
+        <div>From Private Phase Time {{.TimeData.Private}}</div>
+    </div>
+    <div>
+        <div>From Public Phase Time {{.TimeData.Public}}</div>
+    </div>
+    <div>
+        <form action="/timeTravel?address={{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+            <button>Time++</button>
+        </form>
+    </div>
+    <div>
+        Send request
+        <form action="/send-request?address={{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+            <div>
+                <input type="text" name="name" placeholder="Name"/>
+            </div>
+            <button>Send request to whitelist</button>
+        </form>
+    </div>
+    <div>
+        Buy
+        <form action="/buy?address={{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+            <div>
+                <input type="number" name="amount" placeholder="TokenAmount"/>
+            </div>
+            <button>Buy</button>
+        </form>
+    </div>
+    <div>
+        Approve
+        <form action="/approve?address{{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+            <div>
+                <input type="text" name="to" placeholder="To">
+            </div>
+            <div>
+                <input type="text" name="amount" placeholder="Value"/>
+            </div>
+            <button>Approve</button>
+        </form>
+    </div>
+    <div>
+        Transfer
+    <form action="/transfer?address{{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+        <div>
+            <input type="text" name="to" placeholder="To"/>
+        </div>
+        <div>
+            <input type="number" name="amount" placeholder="Token Amount"/>
+        </div>
+        <button>Transfer</button>
+    </form>
+
+    </div>
+    <div>
+        TransferFrom
+        <form action="/transferFrom?address{{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+            <div>
+                <input type="text" name="from" placeholder="From">
+            </div>
+            <div>
+                <input type="text" name="to" placeholder="To">
+            </div>
+            <div>
+                <input type="number" name="amount" placeholder="TokenAmount">
+            </div>
+            <button>Transfer</button>
+        </form>
+    </div>
+
+    <div>
+        Users
+        {{range .Users}}
+        <div>{{.Address}}</div>
+        <div>{{.Public}}</div>
+        {{end}}
+    </div>
+
+    <div>
+        Send Gift
+    <form action="/transfer?address{{.UserData.Address}}&role={{.UserData.Role}}" method="post">
+        <div>
+            <input type="text" name="to" placeholder="To"/>
+        </div>
+        <div>
+            <input type="number" name="amount" placeholder="Token Amount"/>
+        </div>
+        <button>Send</button>
+    </form>
+
+    </div>
+
+
+</body>
+</html>

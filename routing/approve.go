@@ -18,7 +18,7 @@ type ApproveBody struct {
 func Approve(ctx *gin.Context) {
 	address := common.HexToAddress(ctx.Query("address"))
 	to := common.HexToAddress(ctx.Request.FormValue("to"))
-	v, err := strconv.ParseInt(ctx.Request.FormValue("value"), 10, 64)
+	v, err := strconv.ParseInt(ctx.Request.FormValue("amount"), 10, 64)
 	value := big.NewInt(v)
 	tOpts, err := variables.TransactOpts(address, big.NewInt(0))
 	if err != nil {

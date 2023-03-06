@@ -2,8 +2,7 @@ package routing
 
 import (
 	"math/big"
-	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -23,32 +22,30 @@ type TransferFromBody struct {
 }
 
 func Transfer(ctx *gin.Context) {
-	var body TransferBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	tOpts, _ := variables.TransactOpts(*body.Address, big.NewInt(0))
-	_, err := variables.Contract.Transfer(tOpts, *body.To, body.Amount)
+	address := common.HexToAddress(ctx.Query("address"))
+	to := common.HexToAddress(ctx.Request.FormValue("to"))
+	rAmount, err := strconv.ParseInt(ctx.Request.FormValue("amount"), 10, 64)
+	amount := big.NewInt(rAmount)
+	tOpts, _ := variables.TransactOpts(address, big.NewInt(0))
+	_, err = variables.Contract.Transfer(tOpts, to, amount)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }
 
 func TransferFrom(ctx *gin.Context) {
-	var body TransferFromBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	_, err := variables.Contract.TransferFrom(variables.DefaultTransactOpts(), *body.From, *body.To, body.Amount)
+	address := common.HexToAddress(ctx.Query("address"))
+	from := common.HexToAddress(ctx.Request.FormValue("from"))
+	to := common.HexToAddress(ctx.Request.FormValue("to"))
+	rAmount, err := strconv.ParseInt(ctx.Request.FormValue("amount"), 10, 64)
+	amount := big.NewInt(rAmount)
+	tOpts, err := variables.TransactOpts(address, big.NewInt(0))
+	_, err = variables.Contract.TransferFrom(tOpts, from, to, amount)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }

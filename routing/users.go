@@ -12,10 +12,10 @@ type Sender struct {
 }
 type User struct {
 	Sender
-	Role               string   `json:"role"`
-	SeedTokenAmount    *big.Int `json:"seedTokenAmount"`
-	PrivateTokenAmount *big.Int `json:"privateTokenAmount"`
-	PublicTokenAmount  *big.Int `json:"publicTokenAmount"`
+	Role    string
+	Seed    *big.Int
+	Private *big.Int
+	Public  *big.Int
 }
 
 func AllUsers() []*User {
@@ -31,7 +31,7 @@ func AllUsers() []*User {
 		sToken, _ := variables.Contract.SeedTokenTx(variables.DefaultCallOpts(), addr)
 		prToken, _ := variables.Contract.PrivateTokenTx(variables.DefaultCallOpts(), addr)
 		pToken, _ := variables.Contract.PublicTokenTx(variables.DefaultCallOpts(), addr)
-		users = append(users, &User{Sender: Sender{&addr}, Role: role, SeedTokenAmount: sToken, PrivateTokenAmount: prToken, PublicTokenAmount: pToken})
+		users = append(users, &User{Sender: Sender{&addr}, Role: role, Seed: sToken, Private: prToken, Public: pToken})
 	}
 	return users
 }

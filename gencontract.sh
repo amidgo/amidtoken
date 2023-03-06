@@ -1,2 +1,1 @@
-#bin/bash
-docker run ethereum/solc:0.8.0 --abi --bin contract/amidtoken.sol -o contract --overwrite && abigen --abi contract/AmidToken.abi --bin contract/AmidToken.bin --pkg contract --out contract/AmidToken.go
+docker run -v ./contract:/contract ethereum/solc:0.8.0  --abi --bin /contract/amidtoken.sol -o /contract --overwrite && docker run -v ./contract:/contract ethereum/client-go:alltools-v1.11.2 abigen --abi /contract/AmidToken.abi --bin /contract/AmidToken.bin --pkg contract --out /contract/AmidToken.go

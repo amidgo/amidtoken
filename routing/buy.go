@@ -3,10 +3,10 @@ package routing
 import (
 	"fmt"
 	"math/big"
-	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,20 +16,17 @@ type BuyBody struct {
 }
 
 func Buy(ctx *gin.Context) {
-	var body BuyBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
+	address := common.HexToAddress(ctx.Query("address"))
+	number, err := strconv.ParseInt(ctx.Request.FormValue("amount"), 10, 64)
+	amount := big.NewInt(number)
 	cost, _ := variables.Contract.Cost(variables.DefaultCallOpts())
-	cost.Mul(cost, body.Amount)
+	cost.Mul(cost, amount)
 	fmt.Println(cost)
-	tOpts, _ := variables.TransactOpts(*body.Address, cost)
-	_, err := variables.Contract.Buy(tOpts, body.Amount)
+	tOpts, _ := variables.TransactOpts(address, cost)
+	_, err = variables.Contract.Buy(tOpts, amount)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }
