@@ -1,7 +1,6 @@
 package routing
 
 import (
-	"fmt"
 	"math/big"
 	"strconv"
 
@@ -21,7 +20,6 @@ func Buy(ctx *gin.Context) {
 	amount := big.NewInt(number)
 	cost, _ := variables.Contract.Cost(variables.DefaultCallOpts())
 	cost.Mul(cost, amount)
-	fmt.Println(cost)
 	tOpts, _ := variables.TransactOpts(address, cost)
 	_, err = variables.Contract.Buy(tOpts, amount)
 	if err != nil {

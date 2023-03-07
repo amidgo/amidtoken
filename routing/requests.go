@@ -2,7 +2,6 @@ package routing
 
 import (
 	"math/big"
-	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
 	"github.com/ethereum/go-ethereum/common"
@@ -50,9 +49,11 @@ func Requests() []*RequestBody {
 }
 
 func HandleRequest(ctx *gin.Context) {
+	private := common.HexToAddress(ctx.Query("address"))
 	address := common.HexToAddress(ctx.Request.FormValue("sender"))
-	isAccept, _ := strconv.ParseBool(ctx.Request.FormValue("status"))
-	_, err := variables.Contract.HandleRequest(variables.DefaultTransactOpts(), address, isAccept)
+	isAccept := ctx.Request.FormValue("status") == "on"
+	tOpts, err := variables.TransactOpts(private, big.NewInt(0))
+	_, err = variables.Contract.HandleRequest(tOpts, address, isAccept)
 	if err != nil {
 		RedirectToError(ctx, err)
 		return

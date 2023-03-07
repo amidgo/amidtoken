@@ -96,6 +96,7 @@ contract AmidToken {
         return "seed";
     }
     function changeCost(uint newValue) public {
+        require(msg.sender == publicProvider,"only public provider can do this operation");
         cost = newValue;
     }
 
@@ -143,6 +144,7 @@ contract AmidToken {
     }
 
     function handleRequest(address sender,bool isAccept) public {
+        require(msg.sender == privateProvider,"only private provider can do this operation");
         whiteList[sender] = isAccept;
         requests[sender] = "";
         for (uint i = 0; i < requestAddresses.length; i++){

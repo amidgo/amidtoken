@@ -1,6 +1,6 @@
-=============== Mar 6, 2023 (+04) ===============
-14:55:08.863268 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-14:55:08.866017 db@open opening
-14:55:08.867006 version@stat F·[] S·0B[] Sc·[]
-14:55:08.867852 db@janitor F·2 G·0
-14:55:08.867875 db@open done T·1.822738ms
+=============== Mar 7, 2023 (+04) ===============
+10:42:01.132477 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:42:01.135080 db@open opening
+10:42:01.136078 version@stat F·[] S·0B[] Sc·[]
+10:42:01.136963 db@janitor F·2 G·0
+10:42:01.136991 db@open done T·1.892327ms

@@ -2,10 +2,10 @@ package routing
 
 import (
 	"math/big"
-	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/amidgo/amidtoken/variables"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,17 +14,15 @@ type ChangeCostBody struct {
 }
 
 func ChangeCost(ctx *gin.Context) {
-	var body ChangeCostBody
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
-		return
-	}
-	tOpts := variables.DefaultTransactOpts()
-	_, err := variables.Contract.ChangeCost(tOpts, body.NewValue)
+	address := common.HexToAddress(ctx.Query("address"))
+	v := ctx.Request.FormValue("value")
+	value, _ := strconv.ParseInt(v, 10, 64)
+	newCost := big.NewInt(value)
+	tOpts, _ := variables.TransactOpts(address, big.NewInt(0))
+	_, err := variables.Contract.ChangeCost(tOpts, newCost)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewRDataError(err))
+		RedirectToError(ctx, err)
 		return
 	}
-	time.Sleep(time.Second)
-	ctx.JSON(http.StatusOK, NewRDataSuccess(nil))
+	RedirectFromRequestToRolePage(ctx)
 }
